@@ -1,16 +1,6 @@
 <div class="navbar-default sidebar" role="navigation">
   <div class="sidebar-nav navbar-collapse">
     <ul class="nav" id="side-menu">
-      <!-- <li class="sidebar-search">
-        <div class="input-group custom-search-form">
-          <input type="text" class="form-control" placeholder="Search...">
-          <span class="input-group-btn">
-            <button class="btn btn-default" type="button">
-              <i class="fa fa-search"></i>
-            </button>
-          </span>
-        </div>
-      </li> -->
       <li>
         <a href="/"><i class="fa fa-cubes"></i> Applications</a>
       </li>
@@ -24,11 +14,32 @@
             <a href="/application-variable">Application Variables</a>
           </li>
         </ul>
-        <!-- /.nav-second-level -->
-      </li>
-      <!-- <li>
-                            <a href="#"><i class="fa fa-wrench fa-fw"></i> Administration</a>
-                        </li> -->
+      </li> 
+      {{#stringEquals userRole 'admin'}}    
+        <li>
+            <a href="#"><i class="fa fa-wrench fa-fw"></i>Administration<span class="fa arrow"></span></a>
+            <ul class="nav nav-second-level">
+              <li>
+                <a href="/application-user"><i class="fa fa-user" aria-hidden="true"></i> Users</a>
+              </li>
+              <li>
+                <a href="/application-key"><i class="fa fa-key" aria-hidden="true"></i> ApiKey</a>
+              </li>
+            </ul>
+        </li>
+      {{/stringEquals}}
+
+      <li>
+          <a href="#"><i class="glyphicon glyphicon-eye-open"></i> Insights<span class="fa arrow"></span></a>
+          <ul class="nav nav-second-level">
+            <li>
+              <a href="/insights/variable"><i class="fa fa-search" aria-hidden="true"></i> Search Variables</a>
+            </li>
+            <li>
+              <a href="/insights/dependency-graph"><i class="fa fa-sitemap" aria-hidden="true"></i> Dependencies as graph</a>
+            </li>            
+          </ul>
+      </li>      
 
     </ul>
   </div>

@@ -16,6 +16,21 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `apikey`
+--
+
+DROP TABLE IF EXISTS `apikey`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `apikey` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `apikey` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `apikey_unique_apikey` (`apikey`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `application`
 --
 

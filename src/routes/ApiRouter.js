@@ -17,7 +17,14 @@ function ApiRouter(expressInstance) {
   };
 
   expressInstance.get('/api/v1/variables', ["api"], (req, res) => {
+    getVariables(req, res, '"');
+  });
 
+  expressInstance.get('/api/v2/variables', ["api"], (req, res) => {
+    getVariables(req, res, "'");
+  });  
+
+  function getVariables(req, res, valueDelimiterChar){
     var application = escape(req.query.application);
     var type = escape(req.query.type);
 
@@ -59,7 +66,7 @@ function ApiRouter(expressInstance) {
       }
 
       try{
-        var parsedVariables = getVariablesByType(type,variables);
+        var parsedVariables = convertVariablesToRequiredFormat(type, variables, valueDelimiterChar);
         createResponse(type,parsedVariables, res);
       }catch(errParseVariables){
         logger.error("Failed to convert variables to type: "+type)
@@ -67,8 +74,8 @@ function ApiRouter(expressInstance) {
         createResponse(type, response500, res)
         return;
       }
-    });
-  });
+    });    
+  }
 
   function createResponse(type, body, res){
     if(type === 'json'){
@@ -79,7 +86,7 @@ function ApiRouter(expressInstance) {
     }
   }
 
-  function getVariablesByType(type, variables){
+  function convertVariablesToRequiredFormat(type, variables, valueDelimiterChar){
     if(type === 'json'){
       var parsedVariables = [];
       variables.forEach(function(variableMetadata) {
@@ -109,9 +116,9 @@ function ApiRouter(expressInstance) {
           'export ' +
           key +
           '=' +
-          '"' +
+          valueDelimiterChar +
           value +
-          '"' +
+          valueDelimiterChar +
           ' \n';
       });
       return exportText;

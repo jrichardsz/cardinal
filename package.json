@@ -1,7 +1,7 @@
 {
   "name": "configurator",
-  "version": "1.0.5",
-  "description": "Centralize and Management configurations of all your applications.",
+  "version": "1.0.6",
+  "description": "Centralizations of all your applications variables",
   "main": "app.js",
   "scripts": {
     "start": "node src/Index.js",
@@ -17,6 +17,7 @@
     "bcrypt": "5.0.1",
     "body-parser": "1.19.0",
     "captchapng": "0.0.1",
+    "chromedriver": "^108.0.0",
     "cookie-parser": "1.4.4",
     "cryptr": "^6.0.2",
     "escape-html": "^1.0.3",
@@ -33,7 +34,6 @@
   },
   "devDependencies": {
     "chai": "4.2.0",
-    "chromedriver": "^96.0.0",
     "coverage-badge-creator": "^1.0.8",
     "js-image-generator": "^1.0.3",
     "mocha": "9.1.3",

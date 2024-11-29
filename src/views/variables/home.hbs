@@ -14,7 +14,7 @@
 		<div id="page-wrapper">
 			<div class="row">
 				<div class="col-lg-12">
-					<h1 class="page-header">Global Variables</h1>
+					<h1 class="page-header">Search result</h1>
 				</div>
 			</div>
 			<div class="row" style="word-wrap:break-word" >
@@ -40,25 +40,6 @@
 						</div>
 					{{/if}}
 
-					<div style="display: flex;">
-						<div>
-							{{#stringEquals userRole 'admin'}}
-									<a href="/global-variable/view/new" type="button" class="btn btn-outline btn-primary">New Global Var</a>
-							{{/stringEquals}}
-						</div>
-						<div style="margin-left: 1rem; width: 100%;">
-							<form action="/global-variable/action/search" method="get" class="form-group">
-								<div class="input-group">
-									<input type="text" name="var" class="form-control" required minlength="3" value="{{globalVar}}" placeholder="Enter name of global variable">
-									<span class="input-group-btn">
-										<button type="submit" class="btn btn-outline btn-primary">Search</button>
-									</span>
-								</div>
-							</form>
-						</div>
-						<br><br>
-					</div>
-
 					<div class="panel panel-default">
 						<div class="panel-body">
 							<div class="table-responsive">
@@ -69,13 +50,13 @@
 											<th>Name</th>
 											<th>Type</th>
 											<th>Value</th>
-											<th>Description</th>
+											<th>Scope</th>
 											<th style="text-align: center;">Manage</th>
 										</tr>
 									</thead>
 									<tbody>
 
-										{{#each globalVariables}}
+										{{#each resultVariable}}
 											<tr class="table-row">
 												<td>{{incremented @index}}</td>
 												<td>{{this.name}}</td>
@@ -90,7 +71,12 @@
   											{{else}}
   												<td>****</td>
   											{{/eq}}
-												<td>{{showValueWithSafeWidth this.description}}</td>
+												{{#eq this.scope 'G'}}
+													<td>Global</td>
+												{{/eq}}
+												{{#eq this.scope 'L'}}
+													<td>Local</td>
+												{{/eq}}
 												<td style="text-align: center;">
                           {{#stringEquals @root.userRole 'reader'}}
                             <a href="/global-variable/view/read/{{this.id}}" type="button" class="btn btn-outline btn-primary fa fa-eye"

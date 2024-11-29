@@ -63,6 +63,14 @@
 							</div>
 							<div>
 								{{#if selectedApplicationId }}
+										<form method="get" action="/application-variable/action/{{selectedApplicationId}}/search" class="form-group">
+											<div class="input-group">
+												<input type="text" name="variable" class="form-control" required minlength="3" placeholder="Enter name of variable">
+												<span class="input-group-btn">
+													<button type="submit" class="btn btn-outline btn-primary">Search</button>
+												</span>
+											</div>
+										</form>
 									{{#stringEquals userRole 'admin'}}
 										<a id="newLocalVariableButton" href="/application-variable/view/{{selectedApplicationId}}/local/new" type="button" class="btn btn-outline btn-primary">New Local Var</a>
 										<a id="addGlobalVariableButton" href="/application-variable/view/{{selectedApplicationId}}/global/new" type="button" class="btn btn-outline btn-primary">Add Global Var</a>

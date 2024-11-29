@@ -15,7 +15,7 @@ const Prototypes = require('./startup/Prototypes.js');
 Prototypes.register();
 
 const Configuration = require('./config/Configuration.js');
-global.properties = new Configuration().loadJsonFile(appHomePath+'/config.json', 'utf8');
+global.properties = new Configuration().loadJsonFile(appHomePath + '/config.json', 'utf8');
 
 const logger = require('./log/Logger.js');
 global.logger = logger;
@@ -55,19 +55,19 @@ app.use(bodyParser.urlencoded({
 }));
 
 app.use(fileUpload({
-    useTempFiles : true,
-    tempFileDir : os.tmpdir(),
-    abortOnLimit : true,
-    safeFileNames : true,
-    preserveExtension : true,
-    limits: {
-        fileSize: 500000 //0.5 mb
-    },
+  useTempFiles: true,
+  tempFileDir: os.tmpdir(),
+  abortOnLimit: true,
+  safeFileNames: true,
+  preserveExtension: true,
+  limits: {
+    fileSize: 500000 //0.5 mb
+  },
 }));
 
 var secureExpress = new SecureExpress();
-secureExpress.setStaticAssets(["/vendor","/pages","/dist","/favicon.ico"]);
-secureExpress.setLoginEndpoints(["/login","/login/action"]);
+secureExpress.setStaticAssets(["/vendor", "/pages", "/dist", "/favicon.ico"]);
+secureExpress.setLoginEndpoints(["/login", "/login/action"]);
 secureExpress.setApiEndpoints(["/api"]);
 secureExpress.setExpressInstance(app);
 secureExpress.configure();

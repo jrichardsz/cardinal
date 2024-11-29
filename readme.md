@@ -21,7 +21,6 @@ Centralize and Management configurations of all your applications.
 |CONFIGURATOR_DATABASE_PASSWORD | ***** |  password related to the mysql user|
 |CONFIGURATOR_DATABASE_PORT | 3306 | mysql port. Default is 3306|
 |CONFIGURATOR_DATABASE_NAME | configurator | name of your mysql database|
-|CONFIGURATOR_API_KEY | ****** | secret value to be used as key to protect the api invocations. Long as you can|
 |CONFIGURATOR_CRYPT_KEY | ****** | secret value to be used as key to encrypt the sensible values in the database. Long as you can|
 |CONFIGURATOR_BFA_THRESHOLD | 100 | Numeric value to protect against Force Brute Attack. Default is 50 |
 |CONFIGURATOR_DISABLE_CAPTCHA | false | Enable or disable the captcha on login|
@@ -78,7 +77,6 @@ docker run --name configurator -it --rm -p 2708:2708 \
 -e CONFIGURATOR_DATABASE_PASSWORD=secret \
 -e CONFIGURATOR_DATABASE_PORT=3306 \
 -e CONFIGURATOR_DATABASE_NAME=configurator \
--e CONFIGURATOR_API_KEY=changeme \
 -e CONFIGURATOR_CRYPT_KEY=changeme \
 -e CONFIGURATOR_BFA_THRESHOLD=100 \
 -e TZ=America/Lima configurator
@@ -118,6 +116,8 @@ Admin can make anything. Guest user only can view all the variables names, view 
 
 
 ## Api: /variables
+
+> At first admin login, you should set the apikey
 
 If you have created an app called **helicarrier-api** with at least one variable, this is how you can get its variables:
 

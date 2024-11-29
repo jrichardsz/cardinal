@@ -19,7 +19,7 @@ services:
       - configurator_network
     healthcheck:
           test: "cat /var/log/mysql/general-log.log | grep \"root@localhost on  using Socket\""
-          interval: 1s
+          interval: 10s
           retries: 120
 
   configurator:

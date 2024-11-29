@@ -6,9 +6,6 @@
     "password":"${CONFIGURATOR_DATABASE_PASSWORD}",
     "name":"${CONFIGURATOR_DATABASE_NAME}"
   },
-  "api":{
-    "key":"${CONFIGURATOR_API_KEY}"
-  },
   "security":{
     "bfaThreshold":"${CONFIGURATOR_BFA_THRESHOLD}",
     "cryptKey":"${CONFIGURATOR_CRYPT_KEY}",

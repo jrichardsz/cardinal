@@ -1,8 +1,8 @@
 function ApplicationVariableRepository() {
 
-  this.findOneById = function(id, callback) {
-    databaseConnection.getConnection(function(err, connection) {
-      connection.query('select * from application_variable where id = ?', [id], function(err, rows) {
+  this.findOneById = function (id, callback) {
+    databaseConnection.getConnection(function (err, connection) {
+      connection.query('select * from application_variable where id = ?', [id], function (err, rows) {
         if (err) {
           connection.release();
           callback(err, rows);
@@ -19,15 +19,15 @@ function ApplicationVariableRepository() {
     });
   }
 
-  this.findVariablesByApplicationId = function(applicationId, callback) {
-    databaseConnection.getConnection(function(err, connection) {
+  this.findVariablesByApplicationId = function (applicationId, callback) {
+    databaseConnection.getConnection(function (err, connection) {
 
       var sql = `select av.id, av.variable_id, v.name, v.value, v.description, v.type, v.scope
                  from application_variable av, variable v
                  where av.application_id = ? and av.variable_id = v.id
                  order by scope, v.name`;
       try {
-        connection.query(sql, [applicationId], function(err, selectResult) {
+        connection.query(sql, [applicationId], function (err, selectResult) {
           connection.release();
           if (err) {
             callback(err, null);
@@ -41,8 +41,8 @@ function ApplicationVariableRepository() {
     });
   }
 
-  this.findVariablesByApplicationName = function(applicationName, callback) {
-    databaseConnection.getConnection(function(err, connection) {
+  this.findVariablesByApplicationName = function (applicationName, callback) {
+    databaseConnection.getConnection(function (err, connection) {
 
       var sql = `select
                 	av.id,
@@ -62,7 +62,7 @@ function ApplicationVariableRepository() {
                 	and av.variable_id = v.id
                   order by v.scope, v.name`;
       try {
-        connection.query(sql, [applicationName], function(err, selectResult) {
+        connection.query(sql, [applicationName], function (err, selectResult) {
           connection.release();
           if (err) {
             callback(err, null);
@@ -76,9 +76,60 @@ function ApplicationVariableRepository() {
     });
   }
 
-  this.findVariableInApplication = function(applicationName, variableName, variableScope) {
+  this.findVariablesLikeVariableName = function (variableName) {
     return new Promise(function (resolve, reject) {
-      databaseConnection.getConnection(function(err, connection) {
+      databaseConnection.getConnection(function (err, connection) {
+        let sql = `
+          select var.name
+            from variable var
+           where var.name like ?
+        `;
+        let variable_name = `%${variableName}%`;
+
+        try {
+          connection.query(sql, [variable_name], function (err, results) {
+            connection.release();
+            if (err) {
+              reject(err)
+            }
+            resolve(results)
+          })
+        } catch (err) {
+          connection.release();
+          reject(err);
+        }
+      })
+    })
+  }
+
+  this.findApplicationByGlobalVariableName = function (globalVarName, callback) {
+    databaseConnection.getConnection(function (err, connection) {
+      let sql = `select app.name, app.description, app.type
+                   from application app, variable var,
+                        application_variable app_var
+                  where app.id = app_var.application_id
+                    and var.id = app_var.variable_id
+                    and var.name = ?
+                  order by app.type, app.name`;
+
+      try {
+        connection.query(sql, [globalVarName], function (err, result) {
+          connection.release();
+          if (err) {
+            callback(err, null)
+          }
+          callback(null, result)
+        })
+      } catch (err) {
+        connection.release();
+        callback(err, null);
+      }
+    })
+  }
+
+  this.findVariableInApplication = function (applicationName, variableName, variableScope) {
+    return new Promise(function (resolve, reject) {
+      databaseConnection.getConnection(function (err, connection) {
 
         var sql = `select
                   	av.id,
@@ -99,7 +150,7 @@ function ApplicationVariableRepository() {
                   	and v.name = ?
                   	and v.scope = ?`;
         try {
-          connection.query(sql, [applicationName, variableName, variableScope], function(err, rows) {
+          connection.query(sql, [applicationName, variableName, variableScope], function (err, rows) {
             connection.release();
             if (err) {
               reject(err);
@@ -114,15 +165,47 @@ function ApplicationVariableRepository() {
     })
   }
 
-  this.findApplicationAndVariableById = function(id, callback) {
-    databaseConnection.getConnection(function(err, connection) {
+  this.findVariableInApplicationById = function (applicationId, variableName) {
+    return new Promise(function (resolve, reject) {
+      databaseConnection.getConnection(function (err, connection) {
+        let sql = `
+          select av.id,
+                 av.variable_id,
+                 v.name,
+                 v.value,
+                 v.description,
+                 v.type,
+                 v.scope
+            from application_variable av,
+                 variable v,
+                 application ap
+           where ap.id = ?
+             and av.application_id = ap.id
+             and av.variable_id = v.id
+             and v.name like ?
+        `;
+        let params = [applicationId, `%${variableName}%`];
+
+        connection.query(sql, params, function (err, rows) {
+          connection.release();
+          if (err) {
+            reject(err);
+          }
+          resolve(rows);
+        })
+      })
+    })
+  }
+
+  this.findApplicationAndVariableById = function (id, callback) {
+    databaseConnection.getConnection(function (err, connection) {
       var sql = `select av.id, a.name as application_name,v.name as variable_name
                  from  application_variable av,application a, variable v
                  where av.id = ? and
                  a.id = av.application_id and
                  v.id = av.variable_id`;
       try {
-        connection.query(sql, [id], function(err, rows) {
+        connection.query(sql, [id], function (err, rows) {
           connection.release();
           if (err) {
             callback(err, rows);
@@ -136,12 +219,12 @@ function ApplicationVariableRepository() {
     });
   }
 
-  this.findApplicationsByVariableById = function(variableId, callback) {
-    databaseConnection.getConnection(function(err, connection) {
+  this.findApplicationsByVariableById = function (variableId, callback) {
+    databaseConnection.getConnection(function (err, connection) {
       var sql = `select ap.name from application ap , application_variable av
                  where av.variable_id = ? && av.application_id = ap.id`;
       try {
-        connection.query(sql, [variableId], function(err, rows) {
+        connection.query(sql, [variableId], function (err, rows) {
           connection.release();
           if (err) {
             callback(err, rows);
@@ -155,8 +238,8 @@ function ApplicationVariableRepository() {
     });
   }
 
-  this.save = function(entity, callback) {
-    databaseConnection.getConnection(function(err, connection) {
+  this.save = function (entity, callback) {
+    databaseConnection.getConnection(function (err, connection) {
       if (entity.id) {
         logger.info("Update action")
         var columns = [];
@@ -180,7 +263,7 @@ function ApplicationVariableRepository() {
         sql = sql.replace("@columns", columns.toString());
         logger.info(sql);
 
-        connection.query(sql, params, function(errUpdate, result) {
+        connection.query(sql, params, function (errUpdate, result) {
           connection.release();
           callback(errUpdate, result);
         });
@@ -204,7 +287,7 @@ function ApplicationVariableRepository() {
         sql = sql.replace("@columns", columns.toString());
         sql = sql.replace("@jokers", jokers.toString());
         logger.info(sql);
-        connection.query(sql, values, function(errInsert, result) {
+        connection.query(sql, values, function (errInsert, result) {
           connection.release();
           callback(errInsert, result);
         });
@@ -212,8 +295,8 @@ function ApplicationVariableRepository() {
     });
   }
 
-  this.massiveSave = function(columns, application_id, variables_id, callback) {
-    databaseConnection.getConnection(function(err, connection) {
+  this.massiveSave = function (columns, application_id, variables_id, callback) {
+    databaseConnection.getConnection(function (err, connection) {
       logger.info("Massive Insert action")
 
       var values = "";
@@ -232,30 +315,30 @@ function ApplicationVariableRepository() {
       sql = sql.replace("@columns", columns.toString());
       sql = sql.replace("@values", values.toString());
       logger.info(sql);
-      connection.query(sql, values, function(errInsert, result) {
+      connection.query(sql, values, function (errInsert, result) {
         connection.release();
         callback(errInsert, result);
       });
     });
   }
 
-  this.delete = function(id, callback) {
+  this.delete = function (id, callback) {
     var params = [id];
 
     var sql = `DELETE FROM application_variable
                WHERE id=?`;
 
-    databaseConnection.getConnection(function(conecctionErr, connection) {
-      connection.query(sql, params, function(deletionErr, deletionResult) {
+    databaseConnection.getConnection(function (conecctionErr, connection) {
+      connection.query(sql, params, function (deletionErr, deletionResult) {
         connection.release();
         callback(deletionErr, deletionResult);
       });
     });
   }
 
-  this.findAlreadyExistentVariablesInApplicationByNamesAndScope = function(applicationId, variableNames, scope) {
+  this.findAlreadyExistentVariablesInApplicationByNamesAndScope = function (applicationId, variableNames, scope) {
     return new Promise(function (resolve, reject) {
-      databaseConnection.getConnection(function(getConnectionErr, connection) {
+      databaseConnection.getConnection(function (getConnectionErr, connection) {
         if (getConnectionErr) {
           reject(getConnectionErr);
         }
@@ -276,7 +359,7 @@ function ApplicationVariableRepository() {
         	and v.name in (?)
           and v.scope = ?
         `;
-        connection.query(sql, [applicationId, variableNames, scope], function(err, rows) {
+        connection.query(sql, [applicationId, variableNames, scope], function (err, rows) {
           connection.release();
           if (err) {
             reject(err);
@@ -288,8 +371,8 @@ function ApplicationVariableRepository() {
   }
 
   //deprecated
-  this.findAlreadyExistentLocalVariablesInApplication = function(variableNames, callback) {
-    databaseConnection.getConnection(function(err, connection) {
+  this.findAlreadyExistentLocalVariablesInApplication = function (variableNames, callback) {
+    databaseConnection.getConnection(function (err, connection) {
       var sql = `
       select
       	v.name ,
@@ -306,7 +389,7 @@ function ApplicationVariableRepository() {
         and v.name in (?)
       `;
       try {
-        connection.query(sql, [variableNames], function(err, rows) {
+        connection.query(sql, [variableNames], function (err, rows) {
           connection.release();
           if (err) {
             callback(err, rows);
@@ -319,15 +402,15 @@ function ApplicationVariableRepository() {
     });
   }
 
-  this.bulkInsert = function(columns, variables) {
+  this.bulkInsert = function (columns, variables) {
     return new Promise(function (resolve, reject) {
-      databaseConnection.getConnection(function(getConnectionErr, connection) {
+      databaseConnection.getConnection(function (getConnectionErr, connection) {
         if (getConnectionErr) {
           reject(getConnectionErr);
         }
         var sql = `INSERT into application_variable (@columns) VALUES ?`;
         sql = sql.replace("@columns", columns.toString());
-        connection.query(sql,  [variables], function(err, result) {
+        connection.query(sql, [variables], function (err, result) {
           connection.release();
           if (err) {
             reject(err);
@@ -339,6 +422,5 @@ function ApplicationVariableRepository() {
   }
 
 }
-
 
 module.exports = ApplicationVariableRepository;

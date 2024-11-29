@@ -1,7 +1,7 @@
 const uuid = require('uuid');
 const bcrypt = require('bcrypt');
 const Utils = require('../common/Utils.js');
-var escape = require('escape-html');
+const escape = require('escape-html');
 
 function SecureExpress() {
 
@@ -29,7 +29,7 @@ function SecureExpress() {
 
   var response500 = {
     "status": 500,
-    "message": "Internal error. BFA."
+    "message": "Internal error"
   };
 
   this.setLoginEndpoints = function(loginEndpoints) {
@@ -165,44 +165,58 @@ function SecureExpress() {
     }
 
     var incomingApiKey = escape(req.headers['apikey']);
-    var apiKey;
-    try{
-      apiKey = properties.api.key;
-    }catch(e){
-      logger.error("api.key does not exist in configuration. Is API_KEY env var exported?");
-      res.status(response422.status);
-      res.json(response422);
-      return;
-    }
-
-    if (typeof apiKey === 'undefined' || apiKey === null || apiKey.length == 0) {
-      logger.error("apikey from configuration is wrong or empty.");
-      res.status(response422.status);
-      res.json(response422);
-      return;
-    }
-
     if (typeof incomingApiKey === 'undefined' || incomingApiKey.length == 0) {
       logger.error("apikey http header is wrong or empty.");
+      //update count for this ip
+      blackListBruteIps[clientRemoteIp] = (blackListBruteIps[clientRemoteIp]==null ? 0:blackListBruteIps[clientRemoteIp]) +1;      
       res.status(response422.status);
-      res.json(response422);
-      //update count for this ip
-      blackListBruteIps[clientRemoteIp] = (blackListBruteIps[clientRemoteIp]==null ? 0:blackListBruteIps[clientRemoteIp]) +1;
+      res.json(response422);      
       return;
     }
 
-    if (incomingApiKey===apiKey) {
-      blackListBruteIps[clientRemoteIp] = 0;
-      next();
-    }else{
-      logger.error("Incoming api key in header are not equal to configured value");
-      res.status(response401.status);
-      res.json(response401);
-      //update count for this ip
-      blackListBruteIps[clientRemoteIp] = (blackListBruteIps[clientRemoteIp]==null ? 0:blackListBruteIps[clientRemoteIp]) +1;
-      return;
-    }
+    applicationApikeyRepository.findAll(function (err, apiKeys) {
+      if(err){
+        logger.error("apiKey cannot be queried");
+        logger.error(err);
+        res.status(response500.status);
+        res.json(response500);
+        return;
+      }
 
+      if (apiKeys.length === 0) {
+        logger.error("apiKey don't exist in the sql table");
+        res.status(response500.status);
+        res.json(response500);
+        return;
+      }
+
+      if (apiKeys.length > 1) {
+        logger.error("several apiKeys were found in the sql table. Only one is allowed");
+        res.status(response500.status);
+        res.json(response500);
+        return;
+      }      
+      bcrypt.compare(incomingApiKey, apiKeys[0].apikey, function (compareErr, compareResult) {
+        if (compareErr) {
+          logger.error("Failed while apikey was compared with hash");
+          logger.error(compareErr);
+          res.status(response500.status);
+          res.json(response500);
+          return;
+        }
+
+        if (!compareResult) {
+          logger.info("Incoming api key from http header is not equal to configured value in db");
+          blackListBruteIps[clientRemoteIp] = (blackListBruteIps[clientRemoteIp]==null ? 0:blackListBruteIps[clientRemoteIp]) +1;
+          res.status(response401.status);
+          res.json(response401);
+          return;
+        }
+        blackListBruteIps[clientRemoteIp] = 0;
+        next();        
+      });
+
+    });
   }
 
   this.get = function(route, allowedRoles, callback) {

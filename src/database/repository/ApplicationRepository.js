@@ -1,31 +1,31 @@
 function ApplicationRepository() {
 
-  this.findAll = function(callback) {
-    databaseConnection.getConnection(function(err, connection) {
-      connection.query('select * from application', function(err, rows) {
+  this.findAll = function (callback) {
+    databaseConnection.getConnection(function (err, connection) {
+      connection.query('select * from application', function (err, rows) {
         connection.release();
         callback(err, rows);
       });
     });
   }
 
-  this.findByDeleted = function(deleted, callback) {
+  this.findByDeleted = function (deleted, callback) {
     var params = [deleted];
-    databaseConnection.getConnection(function(err, connection) {
-      connection.query('select * from application where deleted = ? order by name', params, function(err, rows) {
+    databaseConnection.getConnection(function (err, connection) {
+      connection.query('select * from application where deleted = ? order by name', params, function (err, rows) {
         connection.release();
         callback(err, rows);
       });
     });
   }
 
-  this.findOneById = function(id, callback) {
+  this.findOneById = function (id, callback) {
 
     // is not callback
-    if(typeof callback === 'undefined'){
+    if (typeof callback === 'undefined') {
       return new Promise(function (resolve, reject) {
-        databaseConnection.getConnection(function(err, connection) {
-          connection.query('select * from application where id = ?', [id], function(err, rows) {
+        databaseConnection.getConnection(function (err, connection) {
+          connection.query('select * from application where id = ?', [id], function (err, rows) {
             connection.release();
             if (err) {
               reject(err);
@@ -41,8 +41,8 @@ function ApplicationRepository() {
     }
 
     //is a callback
-    databaseConnection.getConnection(function(err, connection) {
-      connection.query('select * from application where id = ?', [id], function(err, rows) {
+    databaseConnection.getConnection(function (err, connection) {
+      connection.query('select * from application where id = ?', [id], function (err, rows) {
         connection.release();
         if (err) {
           callback(err, rows);
@@ -58,17 +58,33 @@ function ApplicationRepository() {
     });
   }
 
-  this.findByName = function(name, callback) {
-    databaseConnection.getConnection(function(err, connection) {
-      connection.query('select * from application where name = ?', [name], function(err, rows) {
+  this.findByName = function (name, callback) {
+    databaseConnection.getConnection(function (err, connection) {
+      connection.query('select * from application where name = ?', [name], function (err, rows) {
         connection.release();
         callback(err, rows);
       });
     });
   }
 
-  this.save = function(entity, callback) {
-    databaseConnection.getConnection(function(err, connection) {
+  this.findByNameAndDeleted = function (name, deleted) {
+    return new Promise(function (resolve, reject) {
+      var params = [`%${name}%`, deleted];
+      databaseConnection.getConnection(function (err, connection) {
+        connection.query("select * from application where name like ? and deleted = ?", params, function (err, rows) {
+          connection.release();
+          if (err) {
+            reject(err)
+          }
+
+          resolve(rows)
+        })
+      })
+    })
+  }
+
+  this.save = function (entity, callback) {
+    databaseConnection.getConnection(function (err, connection) {
       if (entity.id) {
         logger.info("Update action")
         var columns = [];
@@ -92,7 +108,7 @@ function ApplicationRepository() {
         sql = sql.replace("@columns", columns.toString());
         logger.info(sql);
 
-        connection.query(sql, params, function(errUpdate, result) {
+        connection.query(sql, params, function (errUpdate, result) {
           connection.release();
           callback(errUpdate, result);
         });
@@ -116,7 +132,7 @@ function ApplicationRepository() {
         sql = sql.replace("@columns", columns.toString());
         sql = sql.replace("@jokers", jokers.toString());
 
-        connection.query(sql, values, function(errInsert, result) {
+        connection.query(sql, values, function (errInsert, result) {
           connection.release();
           callback(errInsert, result);
         });
@@ -124,27 +140,27 @@ function ApplicationRepository() {
     });
   }
 
-  this.logicDelete = function(id, callback) {
-    databaseConnection.getConnection(function(err, connection) {
+  this.logicDelete = function (id, callback) {
+    databaseConnection.getConnection(function (err, connection) {
       // just turn delete column to 'Y'
       var sql = `UPDATE application
                  SET deleted = 'Y'
                  WHERE id = ?`;
-      connection.query(sql, [id], function(errDelete, result) {
+      connection.query(sql, [id], function (errDelete, result) {
         connection.release();
         callback(errDelete, result);
       });
     });
   }
 
-  this.delete = function(id, callback) {
+  this.delete = function (id, callback) {
     var params = [id];
 
     var sql = `DELETE FROM application
                WHERE id=?`;
 
-    databaseConnection.getConnection(function(conecctionErr, connection) {
-      connection.query(sql, params, function(deletionErr, deletionResult) {
+    databaseConnection.getConnection(function (conecctionErr, connection) {
+      connection.query(sql, params, function (deletionErr, deletionResult) {
         connection.release();
         callback(deletionErr, deletionResult);
       });

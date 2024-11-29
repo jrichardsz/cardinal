@@ -45,11 +45,25 @@ function VariableRepository() {
   }
 
   this.findByNameAndScopeAndDeleted = function (name, scope, deleted) {
-
     return new Promise(function (resolve, reject) {
       var params = [name, scope, deleted];
       databaseConnection.getConnection(function(err, connection) {
         connection.query('select * from variable where name = ? and scope = ? and deleted = ?', params, function(err, rows) {
+          connection.release();
+          if (err) {
+            reject(err);
+          }
+          resolve(rows);
+        });
+      });
+    });
+  }
+
+  this.findLikeByNameAndScopeAndDeleted = function (name, scope, deleted) {
+    return new Promise(function (resolve, reject) {
+      var params = [`%${name}%`, scope, deleted];
+      databaseConnection.getConnection(function(err, connection) {
+        connection.query('select * from variable where name like ? and scope = ? and deleted = ?', params, function(err, rows) {
           connection.release();
           if (err) {
             reject(err);

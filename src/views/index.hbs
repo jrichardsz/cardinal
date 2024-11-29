@@ -40,11 +40,23 @@
 						</div>
 					{{/if}}
 
-					<div>
-						{{#stringEquals userRole 'admin'}}
-	              <a href="/application/view/new" type="button" class="btn btn-outline btn-primary">New application</a>
-								<br><br>
-						{{/stringEquals}}
+					<div style="display: flex;">
+						<div>
+							{{#stringEquals userRole 'admin'}}
+									<a href="/application/view/new" type="button" class="btn btn-outline btn-primary">New application</a>
+									<br><br>
+							{{/stringEquals}}
+						</div>
+						<div style="margin-left: 1rem; width: 100%;">
+							<form method="get" action="/search" class="form-group">
+								<div class="input-group">
+									<input type="text" name="application" class="form-control" placeholder="Enter name of application" minlength="3" required>
+									<span class="input-group-btn">
+										<button type="submit" class="btn btn-outline btn-primary">Search</button>
+									</span>
+								</div>
+							</form>
+						</div>
 					</div>
 
 					<div class="panel panel-default">

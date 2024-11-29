@@ -7,43 +7,50 @@
 <!-- Metis Menu Plugin JavaScript -->
 <script src="/vendor/metisMenu/metisMenu.min.js"></script>
 
-
 {{#if morris}}
-	<!-- Morris Charts JavaScript -->
-	<script src="/vendor/raphael/raphael.min.js"></script>
-	<script src="/vendor/morrisjs/morris.min.js"></script>
-	<script src="/data/morris-data.js"></script>
+  <!-- Morris Charts JavaScript -->
+  <script src="/vendor/raphael/raphael.min.js"></script>
+  <script src="/vendor/morrisjs/morris.min.js"></script>
+  <script src="/data/morris-data.js"></script>
 {{/if}}
 
 {{#if flot}}
-	<!-- Flot Charts JavaScript -->
-	<script src="/vendor/flot/excanvas.min.js"></script>
-	<script src="/vendor/flot/jquery.flot.js"></script>
-	<script src="/vendor/flot/jquery.flot.pie.js"></script>
-	<script src="/vendor/flot/jquery.flot.resize.js"></script>
-	<script src="/vendor/flot/jquery.flot.time.js"></script>
-	<script src="/vendor/flot-tooltip/jquery.flot.tooltip.min.js"></script>
-	<script src="/data/flot-data.js"></script>
+  <!-- Flot Charts JavaScript -->
+  <script src="/vendor/flot/excanvas.min.js"></script>
+  <script src="/vendor/flot/jquery.flot.js"></script>
+  <script src="/vendor/flot/jquery.flot.pie.js"></script>
+  <script src="/vendor/flot/jquery.flot.resize.js"></script>
+  <script src="/vendor/flot/jquery.flot.time.js"></script>
+  <script src="/vendor/flot-tooltip/jquery.flot.tooltip.min.js"></script>
+  <script src="/data/flot-data.js"></script>
 {{/if}}
 
 {{#if tables}}
-	<!-- DataTables JavaScript -->
-	<script src="/vendor/datatables/js/jquery.dataTables.min.js"></script>
-	<script src="/vendor/datatables-plugins/dataTables.bootstrap.min.js"></script>
-	<script src="/vendor/datatables-responsive/dataTables.responsive.js"></script>
+  <!-- DataTables JavaScript -->
+  <script src="/vendor/datatables/js/jquery.dataTables.min.js"></script>
+  <script src="/vendor/datatables-plugins/dataTables.bootstrap.min.js"></script>
+  <script src="/vendor/datatables-responsive/dataTables.responsive.js"></script>
 {{/if}}
+
+{{!-- {{#if graph}} --}}
+  <script src="//d3js.org/d3.v5.min.js"></script>
+  <script src="https://unpkg.com/@hpcc-js/wasm@0.3.11/dist/index.min.js"></script>
+  <script src="https://unpkg.com/d3-graphviz@3.0.5/build/d3-graphviz.js"></script>
+{{!-- {{/if}} --}}
+
+
 
 <!-- Custom Theme JavaScript -->
 <script src="/dist/js/sb-admin-2.js"></script>
 
 <script type="text/javascript">
-	$(document).ready(function($) {
-				{{#if redirect}}
-					window.history.pushState("", "", '{{redirect}}');
-				{{/if}}
-	});
+  $(document).ready(function($) {
+    {{#if redirect}}
+      window.history.pushState("", "", '{{redirect}}');
+    {{/if}}
+  });
 </script>
 
 {{#if javascriptModule}}
-	<script src="/pages/{{javascriptModule}}/main.js"></script>
+  <script src="/pages/{{javascriptModule}}/main.js"></script>
 {{/if}}
